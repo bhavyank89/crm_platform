@@ -1,17 +1,24 @@
-import passportGoogle from 'passport-google-oauth20';
 import passport from 'passport';
-import User from '../models/User.js';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import dotenv from 'dotenv';
+import User from '../models/User.js';
+
 dotenv.config();
 
-const GoogleStrategy = passportGoogle.Strategy;
+const CLIENT_ID = process.env.G_CLIENT_ID;
+const CLIENT_SECRET = process.env.G_CLIENT_SECRET;
+const BACKEND_URL = process.env.BACKEND_URL; 
+
+if (!CLIENT_ID || !CLIENT_SECRET || !BACKEND_URL) {
+    throw new Error('Missing required Google OAuth environment variables.');
+}
 
 passport.use(
     new GoogleStrategy(
         {
-            clientID: process.env.G_CLIENT_ID,
-            clientSecret: process.env.G_CLIENT_SECRET,
-            callbackURL: `${process.env.BACKEND_URL}/api/auth/google/callback`, // ✅ Absolute URL
+            clientID: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            callbackURL: `${BACKEND_URL}/api/auth/google/callback`, 
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
@@ -28,6 +35,7 @@ passport.use(
 
                 return done(null, user);
             } catch (err) {
+                console.error('Error in GoogleStrategy:', err);
                 return done(err, null);
             }
         }
@@ -35,7 +43,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-    done(null, user.id);
+    done(null, user._id); // Store user ID in session
 });
 
 passport.deserializeUser(async (id, done) => {
@@ -43,6 +51,7 @@ passport.deserializeUser(async (id, done) => {
         const user = await User.findById(id);
         done(null, user);
     } catch (err) {
+        console.error('Error in deserializeUser:', err);
         done(err, null);
     }
 });

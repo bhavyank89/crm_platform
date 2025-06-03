@@ -64,11 +64,13 @@ router.post('/login', async (req, res) => {
 
 // ===================== GOOGLE OAUTH =====================
 
+// 1️⃣ Start Google OAuth flow
 router.get(
     '/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
+// 2️⃣ Handle Google OAuth callback
 router.get(
     '/google/callback',
     passport.authenticate('google', {
@@ -76,14 +78,15 @@ router.get(
         session: false,
     }),
     (req, res) => {
-        try {
-            const user = req.user;
-            const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-            res.redirect(`${FRONTEND_URL}/login?token=${token}`);
-        } catch (err) {
-            console.error('OAuth Error:', err);
-            res.redirect('/');
-        }
+        const user = req.user;
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.redirect(`${FRONTEND_URL}/login?token=${token}`);
     }
 );
 

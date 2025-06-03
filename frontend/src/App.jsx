@@ -22,6 +22,9 @@ import CommunicationLogs from "./components/CommunicationLogs";
 import Home from "./components/Home";
 import Orders from "./components/Orders";
 
+// Get backend URL from .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 // Page animation wrapper
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -30,11 +33,10 @@ const PageWrapper = ({ children }) => (
     exit={{ opacity: 0, y: -20 }}
     transition={{ duration: 0.4, ease: "easeInOut" }}
     style={{
-      width: "100%", // full width of parent container
-      minHeight: "100%", // allow height expansion, don't fix to viewport
+      width: "100%",
+      minHeight: "100%",
       boxSizing: "border-box",
-      overflow: "visible", // don't cut off content or scroll inside here
-      // Removed padding here. Each page component should handle its own padding.
+      overflow: "visible",
     }}
   >
     {children}
@@ -61,7 +63,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <AuthRoute user={user}>
               <PageWrapper>
-                <Login setUser={setUser} />
+                <Login setUser={setUser} backendUrl={BACKEND_URL} />
               </PageWrapper>
             </AuthRoute>
           }
@@ -71,7 +73,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <AuthRoute user={user}>
               <PageWrapper>
-                <Home />
+                <Home backendUrl={BACKEND_URL} />
               </PageWrapper>
             </AuthRoute>
           }
@@ -81,7 +83,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <AuthRoute user={user}>
               <PageWrapper>
-                <Signup />
+                <Signup backendUrl={BACKEND_URL} />
               </PageWrapper>
             </AuthRoute>
           }
@@ -91,7 +93,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <Dashboard />
+                <Dashboard backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -101,7 +103,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <LoginGoogle setUser={setUser} />
+                <LoginGoogle setUser={setUser} backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -111,7 +113,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <Customers />
+                <Customers backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -121,7 +123,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <Campaigns />
+                <Campaigns backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -131,7 +133,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <Segments />
+                <Segments backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -141,7 +143,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <Orders />
+                <Orders backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -151,7 +153,7 @@ const AnimatedRoutes = ({ user, setUser }) => {
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <CommunicationLogs />
+                <CommunicationLogs backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -166,34 +168,16 @@ const AppContent = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
-  // The CSS for hiding the scrollbar should be in index.css as you provided.
-  // Dynamic injection via useEffect is not necessary if it's already in a global CSS file.
-  // Removing this block for cleaner code, assuming index.css is properly loaded.
-  /*
   useEffect(() => {
-    if (!document.getElementById("hide-scrollbar-style")) {
-      const styleEl = document.createElement("style");
-      styleEl.id = "hide-scrollbar-style";
-      styleEl.innerHTML = hideScrollbarStyle;
-      document.head.appendChild(styleEl);
-    }
-  }, []);
-  */
-
-  useEffect(() => {
-    // Check for token in URL
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get("token");
 
     if (tokenFromUrl) {
       localStorage.setItem("token", tokenFromUrl);
       setUser(tokenFromUrl);
-
-      // Clean URL to remove token query
       const newUrl = window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
     } else {
-      // Load from localStorage if already logged in
       const storedToken = localStorage.getItem("token");
       setUser(storedToken || null);
     }
@@ -205,7 +189,6 @@ const AppContent = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar/Navbar */}
       {!isAuthPage && user && (
         <div
           className={`h-full bg-[#F8FAFC] fixed top-0 left-0 shadow z-10 transition-all duration-300 ${
@@ -221,16 +204,11 @@ const AppContent = () => {
         </div>
       )}
 
-      {/* Main content area */}
       <main
-        className={`mainContent flex-1 bg-[#EFF3EA] transition-all duration-300 overflow-y-auto overflow-x-hidden ${ // Combined and ensured overflow classes
+        className={`mainContent flex-1 bg-[#EFF3EA] transition-all duration-300 overflow-y-auto overflow-x-hidden ${
           !isAuthPage && user ? (collapsed ? "ml-20" : "ml-64") : ""
         }`}
-        style={{
-          minHeight: "100vh", // Use minHeight for content flexibility
-          // Removed inline overflowY/X properties as they are now in className
-          // Removed WebkitOverflowScrolling as it's generally handled by modern browsers
-        }}
+        style={{ minHeight: "100vh" }}
       >
         <AnimatedRoutes user={user} setUser={setUser} />
       </main>
@@ -238,10 +216,10 @@ const AppContent = () => {
   );
 };
 
-// App root with router
 const App = () => (
   <Router>
     <AppContent />
+    {/* Uncomment Toaster for toast notifications */}
     {/* <Toaster position="top-right" /> */}
   </Router>
 );

@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect } from 'react';
+import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -11,19 +10,23 @@ function LoginGoogle({ setUser }) {
         const urlToken = new URLSearchParams(location.search).get("token");
         if (urlToken) {
             localStorage.setItem("token", urlToken);
-            toast.success("Google login successful!");
             setUser(urlToken);
-            navigate("/");
+            toast.success("Google login successful!");
+            navigate("/", { replace: true });
         } else {
             toast.error("No token found, login failed");
-            navigate("/login");
+            navigate("/login", { replace: true });
         }
-    }, [location, navigate]);
+    }, [location.search, navigate, setUser]);
+
     return (
-        <div>
-            <p>redirecting to /</p>
-        </div>
-    )
+        <>
+            <Toaster position="top-center" />
+            <div className="flex items-center justify-center h-screen">
+                <p>Redirecting...</p>
+            </div>
+        </>
+    );
 }
 
-export default LoginGoogle
+export default LoginGoogle;

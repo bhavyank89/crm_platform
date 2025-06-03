@@ -34,7 +34,8 @@ function Navbar({ collapsed, setCollapsed, user, setUser }) {
     };
 
     const getInitials = (name) => {
-        return name && typeof name === 'string' ? name[0].toUpperCase() : "U";
+        if (!name || typeof name !== 'string') return "U";
+        return name.split(' ').map(n => n[0].toUpperCase()).join('').slice(0, 2);
     };
 
     useEffect(() => {
@@ -61,14 +62,16 @@ function Navbar({ collapsed, setCollapsed, user, setUser }) {
                     setUserData(data.user);
                 } else {
                     console.error("Failed to fetch user:", data.error || "Unknown error");
+                    toast.error("Failed to fetch user data");
                 }
             } catch (error) {
                 console.error("Error fetching user:", error);
+                toast.error("Error fetching user data");
             }
         };
 
         fetchUser();
-    }, []);
+    }, []); // no dependencies necessary, fetch on mount only
 
     return (
         <aside
@@ -78,12 +81,24 @@ function Navbar({ collapsed, setCollapsed, user, setUser }) {
                 {/* Collapse toggle */}
                 <div className="flex justify-between items-center mb-8 px-2">
                     {!collapsed && (
-                        <div onClick={() => { navigate('/') }} className="text-2xl font-bold flex items-center gap-2 cursor-pointer">
-                            <span className="w-6 h-6"><img src="logo.png" alt="logo" /></span>
+                        <div
+                            onClick={() => navigate('/')}
+                            role="button"
+                            tabIndex={0}
+                            onKeyPress={e => (e.key === 'Enter' || e.key === ' ') && navigate('/')}
+                            className="text-2xl font-bold flex items-center gap-2 cursor-pointer select-none"
+                        >
+                            <span className="w-6 h-6">
+                                <img src="logo.png" alt="CRM Platform Logo" />
+                            </span>
                             <span className="text-sm text-black">CRM_platform</span>
                         </div>
                     )}
-                    <button className='cursor-pointer' onClick={() => setCollapsed(prev => !prev)}>
+                    <button
+                        className="cursor-pointer p-1 rounded hover:bg-gray-200 transition-colors"
+                        onClick={() => setCollapsed(prev => !prev)}
+                        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
                         {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                     </button>
                 </div>
@@ -110,8 +125,8 @@ function Navbar({ collapsed, setCollapsed, user, setUser }) {
 
             {/* User Info */}
             <div
-                className="flex items-center gap-3 mt-6 mb-2 p-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
-                title={userData?.name}
+                className="flex items-center gap-3 mt-6 mb-2 p-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer select-none"
+                title={userData?.name || "User"}
             >
                 <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-lg">
                     {getInitials(userData?.name)}
@@ -127,6 +142,7 @@ function Navbar({ collapsed, setCollapsed, user, setUser }) {
                         onClick={handleLogout}
                         className="text-gray-500 hover:text-red-500 transition-colors"
                         title="Logout"
+                        aria-label="Logout"
                     >
                         <LogOut size={18} />
                     </button>

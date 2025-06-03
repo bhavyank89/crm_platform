@@ -19,6 +19,7 @@ function SignUp() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Handle token from Google OAuth redirect in URL query params
     useEffect(() => {
         const urlToken = new URLSearchParams(location.search).get("token");
         if (urlToken) {
@@ -26,26 +27,30 @@ function SignUp() {
             toast.success("Google sign-up successful!");
             navigate("/");
         }
-    }, [location, navigate]);
+    }, [location.search, navigate]);
 
+    // Fade in and loading skeleton timers
     useEffect(() => {
         const fadeTimer = setTimeout(() => setFadeIn(true), 100);
         const loadTimer = setTimeout(() => setIsLoading(false), 1500);
         return () => {
-            clearTimeout(loadTimer);
             clearTimeout(fadeTimer);
+            clearTimeout(loadTimer);
         };
     }, []);
 
+    // Handle navigating to login with fade out effect
     const handleLoginHere = (e) => {
         e.preventDefault();
         setFadeOut(true);
         setTimeout(() => navigate("/login"), 500);
     };
 
+    // Handle form submission for sign up
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+
         try {
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, {
                 method: "POST",
@@ -66,6 +71,7 @@ function SignUp() {
         }
     };
 
+    // Redirect to backend Google OAuth endpoint
     const handleGoogleSignupRedirect = () => {
         window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
     };
@@ -80,7 +86,16 @@ function SignUp() {
                 <div className="w-full h-screen bg-white shadow-md rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
                     {/* Left Illustration */}
                     <div className="relative hidden md:flex items-center justify-center bg-[#e0f7fa]">
-                        <div className="absolute top-4 left-6 flex items-center space-x-2 text-lg font-bold cursor-pointer" onClick={() => { navigate('/home') }}>
+                        <div
+                            className="absolute top-4 left-6 flex items-center space-x-2 text-lg font-bold cursor-pointer"
+                            onClick={() => navigate("/home")}
+                            role="button"
+                            tabIndex={0}
+                            onKeyPress={(e) => {
+                                if (e.key === "Enter") navigate("/home");
+                            }}
+                            aria-label="Go to home"
+                        >
                             <img src="logo.png" alt="logo" className="h-6 w-6 object-contain" />
                             <span>CRM_platform</span>
                         </div>
@@ -89,13 +104,14 @@ function SignUp() {
                             loop
                             autoplay
                             style={{ width: "80%", height: "80%" }}
+                            aria-label="Illustration animation"
                         />
                     </div>
 
                     {/* Right Form */}
                     <div className="p-10 md:p-20 flex flex-col justify-center">
                         {isLoading ? (
-                            <div className="space-y-5 animate-pulse">
+                            <div className="space-y-5 animate-pulse" aria-busy="true" aria-live="polite">
                                 <div className="h-8 bg-gray-200 rounded w-1/3"></div>
                                 <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                                 <div className="h-12 bg-gray-200 rounded"></div>
@@ -118,60 +134,75 @@ function SignUp() {
                                     </button>
                                 </p>
 
-                                <form onSubmit={handleSignupSubmit} className="space-y-5">
+                                <form onSubmit={handleSignupSubmit} className="space-y-5" noValidate>
                                     {/* Name */}
                                     <div>
-                                        <label className="block text-sm text-gray-700 mb-1">Name</label>
+                                        <label htmlFor="name" className="block text-sm text-gray-700 mb-1">
+                                            Name
+                                        </label>
                                         <div className="flex items-center border-b border-gray-300 py-2">
                                             <FiUser className="mr-2 text-gray-400" />
                                             <input
+                                                id="name"
                                                 type="text"
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                                 placeholder="Enter your full name"
                                                 className="w-full outline-none"
                                                 required
+                                                aria-required="true"
                                                 aria-label="Full name"
+                                                autoComplete="name"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Email */}
                                     <div>
-                                        <label className="block text-sm text-gray-700 mb-1">Email</label>
+                                        <label htmlFor="email" className="block text-sm text-gray-700 mb-1">
+                                            Email
+                                        </label>
                                         <div className="flex items-center border-b border-gray-300 py-2">
                                             <FiMail className="mr-2 text-gray-400" />
                                             <input
+                                                id="email"
                                                 type="email"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="Enter your email address"
                                                 className="w-full outline-none"
                                                 required
+                                                aria-required="true"
                                                 aria-label="Email address"
+                                                autoComplete="email"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Password */}
                                     <div>
-                                        <label className="block text-sm text-gray-700 mb-1">Password</label>
+                                        <label htmlFor="password" className="block text-sm text-gray-700 mb-1">
+                                            Password
+                                        </label>
                                         <div className="flex items-center border-b border-gray-300 py-2">
                                             <FiLock className="mr-2 text-gray-400" />
                                             <input
+                                                id="password"
                                                 type={showPassword ? "text" : "password"}
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="Create a password"
                                                 className="w-full outline-none"
                                                 required
+                                                aria-required="true"
                                                 aria-label="Password"
+                                                autoComplete="new-password"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 className="text-gray-400 hover:text-gray-700 ml-2"
-                                                aria-label="Toggle password visibility"
+                                                aria-label={showPassword ? "Hide password" : "Show password"}
                                             >
                                                 {showPassword ? <FiEyeOff /> : <FiEye />}
                                             </button>
@@ -200,11 +231,7 @@ function SignUp() {
                                                         stroke="currentColor"
                                                         strokeWidth="4"
                                                     />
-                                                    <path
-                                                        className="opacity-75"
-                                                        fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8v8z"
-                                                    />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                                                 </svg>
                                                 <span>Signing Up...</span>
                                             </>
@@ -223,6 +250,7 @@ function SignUp() {
                                             className={`flex items-center space-x-2 px-4 py-2 border rounded-full transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-md ${fadeIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
                                                 }`}
                                             aria-label="Sign up with Google"
+                                            type="button"
                                         >
                                             <FcGoogle className="text-xl" />
                                             <span className="text-sm font-medium">continue with Google</span>
