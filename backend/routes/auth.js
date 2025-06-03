@@ -64,13 +64,11 @@ router.post('/login', async (req, res) => {
 
 // ===================== GOOGLE OAUTH =====================
 
-// Start Google OAuth flow
 router.get(
     '/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-// Google OAuth callback
 router.get(
     '/google/callback',
     passport.authenticate('google', {
