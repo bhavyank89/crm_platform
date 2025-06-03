@@ -72,7 +72,7 @@ router.get(
 router.get(
     '/google/callback',
     passport.authenticate('google', {
-        failureRedirect: '/',
+        failureRedirect: `${FRONTEND_URL}/`,
         session: false,
     }),
     (req, res) => {
