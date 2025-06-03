@@ -3,8 +3,8 @@ import passport from 'passport';
 import dotenv from 'dotenv';
 import db from './config/db.js';
 import './config/passport.js';
-import startCustomerConsumer from './kafka/consumers/customerConsumer.js';
-import startOrderConsumer from './kafka/consumers/orderConsumer.js';
+// import startCustomerConsumer from './kafka/consumers/customerConsumer.js';
+// import startOrderConsumer from './kafka/consumers/orderConsumer.js';
 import cors from 'cors';
 
 import authRoutes from './routes/auth.js';
@@ -46,9 +46,9 @@ app.use('/api/vender', venderRoute);
 app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);
     try {
-        await startCustomerConsumer();
-        await startOrderConsumer();
-        console.log("✅ Kafka consumers started successfully");
+        // await startCustomerConsumer();
+        // await startOrderConsumer();
+        // console.log("✅ Kafka consumers started successfully");
     } catch (error) {
         console.error("❌ Failed to start Kafka consumers:", error);
     }

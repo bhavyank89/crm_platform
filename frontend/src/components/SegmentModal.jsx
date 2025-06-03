@@ -21,7 +21,7 @@ const SegmentModal = ({ isOpen, onClose }) => {
             }
 
             try {
-                const userData = await fetch("http://localhost:5000/api/user/fetch", {
+                const userData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/fetch`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -47,7 +47,7 @@ const SegmentModal = ({ isOpen, onClose }) => {
     const handlePreview = async () => {
         try {
             setPreviewLoading(true);
-            const res = await fetch("http://localhost:5000/api/segments/preview", {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/segments/preview`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ rules: rules }),
@@ -69,7 +69,7 @@ const SegmentModal = ({ isOpen, onClose }) => {
             const token = localStorage.getItem("token");
             const createdBy = user._id;
 
-            const res = await fetch("http://localhost:5000/api/segments/save", {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/segments/save`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

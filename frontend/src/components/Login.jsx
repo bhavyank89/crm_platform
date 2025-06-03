@@ -46,7 +46,7 @@ function Login({ setUser }) {
         setLoggingIn(true);
 
         try {
-            const res = await fetch("http://localhost:5000/auth/login", {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email.trim(), password: password.trim() }),

@@ -73,8 +73,8 @@ const Orders = () => {
         try {
             if (isInitialFetch.current) setLoading(true);
             const [ordersRes, customersRes] = await Promise.all([
-                fetch("http://localhost:5000/api/orders/fetch"),
-                fetch("http://localhost:5000/api/customers/fetch"), // Assuming this endpoint exists
+                fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/fetch`),
+                fetch(`${import.meta.env.VITE_BACKEND_URL}/api/customers/fetch`), // Assuming this endpoint exists
             ]);
 
             const ordersData = ordersRes.ok ? await ordersRes.json() : { orders: fallbackOrders };

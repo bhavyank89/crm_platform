@@ -58,7 +58,7 @@ const Campaigns = () => {
   const fetchData = async () => {
     try {
       if (isInitialFetch.current) setLoading(true);
-      const res = await fetch("http://localhost:5000/api/campaign/history");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/campaign/history`);
       const data = res.ok ? await res.json() : { campaigns: fallbackCampaigns };
       setCampaigns(data || fallbackCampaigns);
     } catch (error) {

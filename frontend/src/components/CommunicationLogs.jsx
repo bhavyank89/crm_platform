@@ -49,7 +49,7 @@ const CommunicationLog = () => {
     try {
       if (isInitialFetch.current) setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/communicationLog/fetch");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/communicationLog/fetch`);
       const data = res.ok ? await res.json() : { logs: fallbackLogs };
       setLogs(data?.logs || fallbackLogs);
     } catch (err) {

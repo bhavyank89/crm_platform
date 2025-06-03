@@ -69,8 +69,8 @@ const Customers = () => {
     try {
       if (isInitialFetch.current) setLoading(true);
       const [customerRes, orderRes] = await Promise.all([
-        fetch("http://localhost:5000/api/customers/fetch"),
-        fetch("http://localhost:5000/api/orders/fetch"),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/customers/fetch`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/fetch`),
       ]);
 
       const customerData = customerRes.ok ? await customerRes.json() : { customers: fallbackCustomers };

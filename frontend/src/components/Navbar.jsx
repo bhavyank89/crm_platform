@@ -47,7 +47,7 @@ function Navbar({ collapsed, setCollapsed, user, setUser }) {
             }
 
             try {
-                const response = await fetch("http://localhost:5000/api/user/fetch", {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/fetch`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -57,7 +57,7 @@ const Segments = () => {
     const fetchData = async () => {
         try {
             if (isInitialFetch.current) setLoading(true);
-            const res = await fetch("http://localhost:5000/api/segments/fetch");
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/segments/fetch`);
             if (res.ok) {
                 const data = await res.json();
                 setSegments(data || fallbackSegments);

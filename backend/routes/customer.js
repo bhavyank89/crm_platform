@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendCustomer } from '../kafka/producers/customerProducer.js';
+// import { sendCustomer } from '../kafka/producers/customerProducer.js';
 import Customer from '../models/Customer.js';
 
 const router = express.Router();
@@ -13,7 +13,7 @@ router.post('/create', async (req, res) => {
 
     try {
         const newCustomer = await Customer.create(req.body);
-        await sendCustomer(newCustomer); // Send to Kafka
+        // await sendCustomer(newCustomer); // Send to Kafka
 
         res.status(201).json({
             message: 'Customer created and sent to Kafka',

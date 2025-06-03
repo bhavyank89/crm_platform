@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendOrder } from '../kafka/producers/orderProducer.js';
+// import { sendOrder } from '../kafka/producers/orderProducer.js';
 import Order from '../models/Order.js';
 import Customer from '../models/Customer.js';
 
@@ -29,7 +29,7 @@ router.post('/create', async (req, res) => {
         );
 
         // 3. Send order to Kafka
-        await sendOrder(order);
+        // await sendOrder(order);
 
         // 4. Respond to client
         res.status(201).json({
