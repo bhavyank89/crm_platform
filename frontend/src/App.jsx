@@ -23,7 +23,7 @@ import Home from "./components/Home";
 import Orders from "./components/Orders";
 
 // Get backend URL from .env
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://crmplatform-production.up.railway.app";
 
 // Page animation wrapper
 const PageWrapper = ({ children }) => (
@@ -71,11 +71,9 @@ const AnimatedRoutes = ({ user, setUser }) => {
         <Route
           path="/home"
           element={
-            <AuthRoute user={user}>
-              <PageWrapper>
-                <Home backendUrl={BACKEND_URL} />
-              </PageWrapper>
-            </AuthRoute>
+            <PageWrapper>
+              <Home backendUrl={BACKEND_URL} />
+            </PageWrapper>
           }
         />
         <Route
@@ -99,11 +97,11 @@ const AnimatedRoutes = ({ user, setUser }) => {
           }
         />
         <Route
-          path="/auth/google/callback"
+          path="/dashboard"
           element={
             <ProtectedRoute user={user}>
               <PageWrapper>
-                <LoginGoogle setUser={setUser} backendUrl={BACKEND_URL} />
+                <Dashboard backendUrl={BACKEND_URL} />
               </PageWrapper>
             </ProtectedRoute>
           }
@@ -166,34 +164,106 @@ const AnimatedRoutes = ({ user, setUser }) => {
 const AppContent = () => {
   const [user, setUser] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenFromUrl = urlParams.get("token");
+    const handleAuth = async () => {
+      try {
+        // Check for token in URL (from OAuth redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get("token");
+        const errorFromUrl = urlParams.get("error");
 
-    if (tokenFromUrl) {
-      localStorage.setItem("token", tokenFromUrl);
-      setUser(tokenFromUrl);
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    } else {
-      const storedToken = localStorage.getItem("token");
-      setUser(storedToken || null);
-    }
+        if (errorFromUrl) {
+          console.error("OAuth error:", errorFromUrl);
+          // Clear URL params
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setIsLoading(false);
+          return;
+        }
+
+        if (tokenFromUrl) {
+          try {
+            // Validate token by fetching user info
+            const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+              headers: {
+                'Authorization': `Bearer ${tokenFromUrl}`
+              }
+            });
+
+            if (response.ok) {
+              const userData = await response.json();
+              localStorage.setItem("token", tokenFromUrl);
+              setUser(userData.user);
+            } else {
+              console.error("Invalid token from URL");
+              localStorage.removeItem("token");
+            }
+          } catch (error) {
+            console.error("Error validating token:", error);
+            localStorage.removeItem("token");
+          }
+
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+          // Check for stored token
+          const storedToken = localStorage.getItem("token");
+          if (storedToken) {
+            try {
+              // Validate stored token
+              const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+                headers: {
+                  'Authorization': `Bearer ${storedToken}`
+                }
+              });
+
+              if (response.ok) {
+                const userData = await response.json();
+                setUser(userData.user);
+              } else {
+                // Invalid stored token
+                localStorage.removeItem("token");
+                setUser(null);
+              }
+            } catch (error) {
+              console.error("Error validating stored token:", error);
+              localStorage.removeItem("token");
+              setUser(null);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleAuth();
   }, []);
 
   const isAuthPage = useMemo(() => {
-    return location.pathname === "/login" || location.pathname === "/signup";
+    return location.pathname === "/login" ||
+      location.pathname === "/signup" ||
+      location.pathname === "/home";
   }, [location.pathname]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
       {!isAuthPage && user && (
         <div
-          className={`h-full bg-[#F8FAFC] fixed top-0 left-0 shadow z-10 transition-all duration-300 ${
-            collapsed ? "w-20" : "w-64"
-          }`}
+          className={`h-full bg-[#F8FAFC] fixed top-0 left-0 shadow z-10 transition-all duration-300 ${collapsed ? "w-20" : "w-64"
+            }`}
         >
           <Navbar
             setUser={setUser}
@@ -205,9 +275,8 @@ const AppContent = () => {
       )}
 
       <main
-        className={`mainContent flex-1 bg-[#EFF3EA] transition-all duration-300 overflow-y-auto overflow-x-hidden ${
-          !isAuthPage && user ? (collapsed ? "ml-20" : "ml-64") : ""
-        }`}
+        className={`mainContent flex-1 bg-[#EFF3EA] transition-all duration-300 overflow-y-auto overflow-x-hidden ${!isAuthPage && user ? (collapsed ? "ml-20" : "ml-64") : ""
+          }`}
         style={{ minHeight: "100vh" }}
       >
         <AnimatedRoutes user={user} setUser={setUser} />
@@ -219,8 +288,7 @@ const AppContent = () => {
 const App = () => (
   <Router>
     <AppContent />
-    {/* Uncomment Toaster for toast notifications */}
-    {/* <Toaster position="top-right" /> */}
+    <Toaster position="top-right" />
   </Router>
 );
 

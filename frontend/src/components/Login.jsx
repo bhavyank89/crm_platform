@@ -30,7 +30,7 @@ function Spinner() {
     );
 }
 
-function Login({ setUser }) {
+function Login({ setUser, backendUrl }) {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [fadeOut, setFadeOut] = useState(false);
@@ -42,16 +42,29 @@ function Login({ setUser }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Detect token in URL for successful Google login
+    // Handle OAuth errors from URL params
     useEffect(() => {
-        const urlToken = new URLSearchParams(location.search).get("token");
-        if (urlToken) {
-            localStorage.setItem("token", urlToken);
-            setUser(urlToken);
-            toast.success("Google login successful!");
-            navigate("/");
+        const urlParams = new URLSearchParams(location.search);
+        const error = urlParams.get("error");
+
+        if (error) {
+            switch (error) {
+                case "oauth_failed":
+                    toast.error("Google authentication failed. Please try again.");
+                    break;
+                case "no_user":
+                    toast.error("Authentication failed. No user found or created.");
+                    break;
+                case "callback_failed":
+                    toast.error("Login process failed during Google callback. Please try again.");
+                    break;
+                default:
+                    toast.error("An unknown authentication error occurred.");
+            }
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
-    }, [location.search, navigate, setUser]);
+    }, [location.search]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -69,35 +82,58 @@ function Login({ setUser }) {
     const handleLoginSubmit = useCallback(
         async (e) => {
             e.preventDefault();
+
+            if (!email.trim() || !password.trim()) {
+                toast.error("Please fill in all fields");
+                return;
+            }
+
             setLoggingIn(true);
 
             try {
-                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
+                const res = await fetch(`${backendUrl}/api/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: email.trim(), password: password.trim() }),
+                    body: JSON.stringify({
+                        email: email.trim(),
+                        password: password.trim()
+                    }),
                 });
 
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Login failed.");
 
-                toast.success("Login successful!");
-                localStorage.setItem("token", data.token);
-                setUser(data.token);
-                setFadeOut(true);
-                setTimeout(() => navigate("/"), 500);
+                if (!res.ok) {
+                    throw new Error(data.message || "Login failed.");
+                }
+
+                if (data.success && data.token) {
+                    toast.success("Login successful!");
+                    localStorage.setItem("token", data.token);
+                    setUser(data.user);
+                    setFadeOut(true);
+                    setTimeout(() => navigate("/"), 500);
+                } else {
+                    throw new Error("Invalid response from server");
+                }
             } catch (error) {
-                toast.error(error.message);
+                console.error("Login error:", error);
+                toast.error(error.message || "Login failed. Please try again.");
             } finally {
                 setLoggingIn(false);
             }
         },
-        [email, password, navigate, setUser]
+        [email, password, navigate, setUser, backendUrl]
     );
 
     const handleGoogleLoginRedirect = useCallback(() => {
-        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
-    }, []);
+        try {
+            // Directly redirect to the backend's Google OAuth initiation endpoint
+            window.location.href = `${backendUrl}/api/auth/google`;
+        } catch (error) {
+            console.error("Google redirect error:", error);
+            toast.error("Failed to initiate Google login");
+        }
+    }, [backendUrl]);
 
     return (
         <>
@@ -148,7 +184,7 @@ function Login({ setUser }) {
                             <>
                                 <h2 className="text-3xl font-bold text-gray-800 mb-4">Sign in</h2>
                                 <p className="text-sm text-gray-600 mb-6">
-                                    If you don’t have an account register
+                                    If you don't have an account register
                                     <br />
                                     You can{" "}
                                     <button
@@ -178,6 +214,7 @@ function Login({ setUser }) {
                                                 required
                                                 autoComplete="email"
                                                 aria-describedby="emailHelp"
+                                                disabled={loggingIn}
                                             />
                                         </div>
                                     </div>
@@ -199,12 +236,14 @@ function Login({ setUser }) {
                                                 required
                                                 autoComplete="current-password"
                                                 aria-describedby="passwordHelp"
+                                                disabled={loggingIn}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 className="text-gray-400 hover:text-gray-700 ml-2"
                                                 aria-label={showPassword ? "Hide password" : "Show password"}
+                                                disabled={loggingIn}
                                             >
                                                 {showPassword ? <FiEyeOff /> : <FiEye />}
                                             </button>
@@ -234,9 +273,11 @@ function Login({ setUser }) {
                                     <div className="flex justify-center mt-3">
                                         <button
                                             onClick={handleGoogleLoginRedirect}
+                                            disabled={loggingIn}
                                             className={`flex items-center space-x-2 px-4 py-2 border rounded-full 
                       transition-all duration-500 ease-in-out
                       transform hover:scale-105 hover:shadow-md
+                      ${loggingIn ? "cursor-not-allowed opacity-50" : ""}
                       ${fadeIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
                                             aria-label="Login with Google"
                                             type="button"
