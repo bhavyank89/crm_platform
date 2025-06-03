@@ -22,6 +22,43 @@ import CommunicationLogs from "./components/CommunicationLogs";
 import Home from "./components/Home";
 import Orders from "./components/Orders";
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+          <div className="p-8 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
+            <p className="text-gray-600">Please try refreshing the page or contact support if the problem persists.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 // Get backend URL from .env
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -191,9 +228,8 @@ const AppContent = () => {
     <div className="flex h-screen overflow-hidden">
       {!isAuthPage && user && (
         <div
-          className={`h-full bg-[#F8FAFC] fixed top-0 left-0 shadow z-10 transition-all duration-300 ${
-            collapsed ? "w-20" : "w-64"
-          }`}
+          className={`h-full bg-[#F8FAFC] fixed top-0 left-0 shadow z-10 transition-all duration-300 ${collapsed ? "w-20" : "w-64"
+            }`}
         >
           <Navbar
             setUser={setUser}
@@ -205,9 +241,8 @@ const AppContent = () => {
       )}
 
       <main
-        className={`mainContent flex-1 bg-[#EFF3EA] transition-all duration-300 overflow-y-auto overflow-x-hidden ${
-          !isAuthPage && user ? (collapsed ? "ml-20" : "ml-64") : ""
-        }`}
+        className={`mainContent flex-1 bg-[#EFF3EA] transition-all duration-300 overflow-y-auto overflow-x-hidden ${!isAuthPage && user ? (collapsed ? "ml-20" : "ml-64") : ""
+          }`}
         style={{ minHeight: "100vh" }}
       >
         <AnimatedRoutes user={user} setUser={setUser} />
@@ -217,11 +252,21 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <Router>
-    <AppContent />
-    {/* Uncomment Toaster for toast notifications */}
-    {/* <Toaster position="top-right" /> */}
-  </Router>
+  <ErrorBoundary>
+    <Router>
+      <AppContent />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
+    </Router>
+  </ErrorBoundary>
 );
 
 export default App;
