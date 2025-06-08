@@ -8,6 +8,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from '@vercel/analytics/react';
 
 // Component imports
 import Login from "./components/Login";
@@ -287,6 +288,7 @@ const AppContent = () => {
 
 const App = () => (
   <Router>
+    <Analytics />
     <AppContent />
     <Toaster position="top-right" />
   </Router>
