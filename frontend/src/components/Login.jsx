@@ -91,7 +91,7 @@ function Login({ setUser, backendUrl }) {
             setLoggingIn(true);
 
             try {
-                const res = await fetch(`${backendUrl}/api/auth/login`, {
+                const res = await fetch(`${backendUrl}/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -128,7 +128,7 @@ function Login({ setUser, backendUrl }) {
     const handleGoogleLoginRedirect = useCallback(() => {
         try {
             // Directly redirect to the backend's Google OAuth initiation endpoint
-            window.location.href = `${backendUrl}/api/auth/google`;
+            window.location.href = `${backendUrl}/auth/google`;
         } catch (error) {
             console.error("Google redirect error:", error);
             toast.error("Failed to initiate Google login");

@@ -45,7 +45,7 @@ const PageWrapper = ({ children }) => (
 
 // Protected route
 const ProtectedRoute = ({ user, children }) =>
-  user ? children : <Navigate to="/login" replace />;
+  user ? children : <Navigate to="/home" replace />;
 
 // Redirect to dashboard if already logged in
 const AuthRoute = ({ user, children }) =>
@@ -186,7 +186,7 @@ const AppContent = () => {
         if (tokenFromUrl) {
           try {
             // Validate token by fetching user info
-            const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+            const response = await fetch(`${BACKEND_URL}/auth/me`, {
               headers: {
                 'Authorization': `Bearer ${tokenFromUrl}`
               }
@@ -213,7 +213,7 @@ const AppContent = () => {
           if (storedToken) {
             try {
               // Validate stored token
-              const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+              const response = await fetch(`${BACKEND_URL}/auth/me`, {
                 headers: {
                   'Authorization': `Bearer ${storedToken}`
                 }

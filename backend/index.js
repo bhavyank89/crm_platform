@@ -21,8 +21,6 @@ db();
 const app = express();
 const PORT = process.env.PORT || 5000; // ✅ Uses .env PORT (default fallback to 5000)
 
-import cors from "cors";
-
 const allowedOrigins = [
     "http://localhost:5173",
     "https://crm-platform0.vercel.app",

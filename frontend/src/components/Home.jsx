@@ -97,7 +97,7 @@ const App = () => {
                             <div className="flex gap-2 pt-2">
                                 <button className="relative inline-flex items-center justify-center px-6 py-2 overflow-hidden text-white font-semibold rounded-full group cursor-pointer">
                                     <span className="absolute w-full h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient-x rounded-full blur-sm opacity-70 group-hover:opacity-100 transition duration-300"></span>
-                                    <a href="https://github.com/bhavyank89/crm_platform"
+                                    <a href="https://github.com/bhavyank89/crm_platform0"
                                         target="_blank" className="relative z-10">Get Code</a>
                                 </button>
                                 <button onClick={() => { navigate('/login') }} className="text-indigo-600 cursor-pointer border border-indigo-600 px-4 py-1 rounded hover:bg-indigo-100">
