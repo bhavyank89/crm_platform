@@ -15,7 +15,6 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
-import LoginGoogle from "./components/LoginGoogle";
 import Customers from "./components/Customers";
 import Campaigns from "./components/Campaigns";
 import Segments from "./components/Segments";
@@ -24,7 +23,7 @@ import Home from "./components/Home";
 import Orders from "./components/Orders";
 
 // Get backend URL from .env
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://crmplatform-production.up.railway.app";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Page animation wrapper
 const PageWrapper = ({ children }) => (
