@@ -87,7 +87,7 @@ npm install
 Create a `.env` file:
 
 ```env
-REACT_APP_API_URL=http://localhost:5000
+VITE_BACKEND_URL=http://localhost:5000
 ```
 
 Start frontend:
@@ -180,14 +180,28 @@ npm start
 ### Frontend:
 
 * React.js
-* Axios
+* TailwindCSS
 * React Router
+
+### FRONTEND UI:
+
+* Lucide-react
+* Framer-motion
+* react-hot-toast
+* lottiefiles
 
 ### Backend:
 
 * Node.js
 * Express.js
 * Mongoose (MongoDB ODM)
+
+### Other Backend Dependencies:
+* bcrypt
+* jsonwebtoken
+* passport
+* passport-google-oauth20
+* nodemon
 
 ### Database:
 
@@ -199,13 +213,7 @@ npm start
 
 ### Deployment:
 
-* Vercel ([crmplatform.vercel.app](https://crmplatform.vercel.app))
-
----
-
-## 📄 License
-
-This project is open-source and available under the [MIT License](LICENSE).
+* Vercel ([crmplatform.vercel.app](https://crm-platform0.vercel.app))
 
 ---
 
